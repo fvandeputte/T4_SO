@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
+#include "funciones_server.c"
 #define PORT 8080
 int main(int argc, char const *argv[])
 {
@@ -45,16 +46,65 @@ int main(int argc, char const *argv[])
         perror("listen");
         exit(EXIT_FAILURE);
     }
-    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
-                       (socklen_t*)&addrlen))<0)
-    {
-        perror("accept");
-        exit(EXIT_FAILURE);
-    }
-    valread = read( new_socket , buffer, 1024);
-    printf("%s\n",buffer );
+    int jugadores = 0;
+    int sockets[2];
+    unsigned char last_uno = 0; 
+    unsigned char last_dos = 0;
+    // unsigned char rpta[16];
+    // int last_socket = -1;
+    // while (1){
 
-    send(new_socket , hello , strlen(hello) , 0 );
-    printf("Hello message sent\n");
+    //     // Continuamente estamos estamos escuchando sockets
+    //     if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
+    //                        (socklen_t*)&addrlen))<0)
+    //     {
+    //         perror("accept");
+    //         exit(EXIT_FAILURE);
+    //     }
+
+    //     valread = read(new_socket,rpta, 16);
+    //     if ((rpta[0] != 0 && rpta[0] != last) || new_socket != last_socket){
+    //         last = rpta[0];
+    //         printf("%u\n", rpta[0]);
+    //         last_socket = new_socket;
+    //     }
+
+    // }
+    while (1){ 
+        // Acepto a los clientes
+        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
+                           (socklen_t*)&addrlen))<0)
+            {
+                perror("accept");
+                exit(EXIT_FAILURE);
+        }
+        if (jugadores < 2){
+            sockets[jugadores] = new_socket;
+            jugadores ++;
+        }
+        // valread = read(new_socket, buffer, 1024);
+        // printf("%s\n",buffer );
+        // send(new_socket , hello , strlen(hello) , 0);
+        // printf("Hello message sent\n");
+        if (jugadores == 1){
+            unsigned char mensaje_cliente[50];
+            valread = read(sockets[0], mensaje_cliente, 50*sizeof(unsigned char));
+            if (mensaje_cliente[0] != last_uno){
+                handle_message(mensaje_cliente);
+            }
+
+
+        }
+        else if(jugadores == 2){
+            unsigned char mensaje_cliente_uno[50];
+            unsigned char mensaje_cliente_dos[50];
+            int m1 = read(sockets[0], mensaje_cliente_uno, 50*sizeof(unsigned char));
+            int m2 = read(sockets[1], mensaje_cliente_dos, 50*sizeof(unsigned char));
+
+        }
+
+    }
+
+
     return 0;
 }
