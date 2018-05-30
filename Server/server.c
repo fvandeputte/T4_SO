@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
     // }
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons( PORT );
+    address.sin_port = htons( argv[4] );
       
     // Forcefully attaching socket to the port 8080
     if (bind(server_fd, (struct sockaddr *)&address, 
