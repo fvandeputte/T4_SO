@@ -10,5 +10,7 @@ void start_connnection(int sock){
     message[0] = 1;
     message[1] = 0;
     message[2] = 0;
+    printf("Enviando solicitud al servidor\n");
     send(sock, message , 3 * sizeof(unsigned char), 0);
+    printf("Esperando respuesta ... \n");
 }

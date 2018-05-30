@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
     int sock = 0, valread;
     struct sockaddr_in serv_addr;
     char * hello= "Hello from client";
-    char buffer[1024] = {0};
+    unsigned char message[50];
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("\n Socket creation error \n");
@@ -43,9 +43,23 @@ int main(int argc, char const *argv[])
     // printf("Hello message sent\n");
     // valread = read( sock , buffer, 1024);
     // printf("%s\n",buffer );
-    start_connnection(sock){
-        
+    int last = 0;
+    // parto la Conexion
+    start_connnection(sock);
+    // Espero respuesta del servidor
+    while (message[0] != 2){
+        if (message[0] != last){
+            valread = read(sock , message, 50);
+        }
     }
+    printf("¡Tu conexión fue exitosa! Conectado al Servidor\n");
+    // espero que me pidan el nickname
+    while (message[0] != 3){
+        if (message[0] != last){
+            valread = read(sock , message, 50);
+        }
+    }
+
     return 0;
 }
 

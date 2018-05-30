@@ -9,7 +9,7 @@
 #define PORT 8080
 int main(int argc, char const *argv[])
 {
-    int server_fd, new_socket, valread;
+    int server_fd, valread;
     struct sockaddr_in address;
     int opt = 1;
     int addrlen = sizeof(address);
@@ -70,18 +70,23 @@ int main(int argc, char const *argv[])
     //     }
 
     // }
+    int m1, m2;
     while (1){ 
         // Acepto a los clientes
+        printf("jugadores: %i \n", jugadores);
+        int new_socket;
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
                            (socklen_t*)&addrlen))<0)
             {
                 perror("accept");
                 exit(EXIT_FAILURE);
         }
+
         if (jugadores < 2){
             sockets[jugadores] = new_socket;
             jugadores ++;
         }
+
         // valread = read(new_socket, buffer, 1024);
         // printf("%s\n",buffer );
         // send(new_socket , hello , strlen(hello) , 0);
@@ -90,7 +95,7 @@ int main(int argc, char const *argv[])
             unsigned char mensaje_cliente[50];
             valread = read(sockets[0], mensaje_cliente, 50*sizeof(unsigned char));
             if (mensaje_cliente[0] != last_uno){
-                handle_message(mensaje_cliente);
+                handle_message(jugadores, sockets[0], mensaje_cliente);
             }
 
 
@@ -98,8 +103,15 @@ int main(int argc, char const *argv[])
         else if(jugadores == 2){
             unsigned char mensaje_cliente_uno[50];
             unsigned char mensaje_cliente_dos[50];
-            int m1 = read(sockets[0], mensaje_cliente_uno, 50*sizeof(unsigned char));
-            int m2 = read(sockets[1], mensaje_cliente_dos, 50*sizeof(unsigned char));
+            m2 = read(sockets[1], mensaje_cliente_dos, 50*sizeof(unsigned char));
+            if (mensaje_cliente_dos[0] != last_dos){
+                handle_message(jugadores, sockets[1], mensaje_cliente_dos);
+            }
+            m1 = read(sockets[0], mensaje_cliente_uno, 50*sizeof(unsigned char));
+            if (mensaje_cliente_uno[0] != last_uno){
+                handle_message(jugadores, sockets[0], mensaje_cliente_uno);
+            }
+
 
         }
 
