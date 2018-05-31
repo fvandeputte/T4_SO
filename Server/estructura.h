@@ -1,8 +1,8 @@
 struct jugador
 {
-    unsigned char nickname[20];
+    char * nickname;
     int inicial_pot;
     int socket;
-    
+    char letra;
 };
 typedef struct jugador Jugador;

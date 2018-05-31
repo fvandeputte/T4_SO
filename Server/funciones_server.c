@@ -29,8 +29,10 @@ void handle_message(int jugadores, int socket, unsigned char message[50]){
 }
 
  void * manejar_conexion_y_nickname(void *vargp){
-    Jugador * pl = (Jugador * )vargp;
-    int socket = pl -> socket;
+    
+
+    int socket = *((int *) vargp);
+    printf("Socket: %i\n", socket);
     unsigned char message[50];
     int valread = read(socket, message, 50*sizeof(unsigned char));
     if (message[0] == 1){
@@ -50,10 +52,17 @@ void handle_message(int jugadores, int socket, unsigned char message[50]){
         message_nickname[2] = 0;
         send(socket, message_nickname , 3 * sizeof(unsigned char), 0);
         // AQUI ESPERO DE VUELTA EL NICKNAME --> PASO 4
+        printf("Esperando que usuario ingrese nombre... \n");
         int valread = read(socket, message, 50 * sizeof(unsigned char));
         //pl -> nickname = malloc(sizeof(char)*20);
+        printf("Ingreso algo \n");
+        char * nickname = malloc(sizeof(char)* 20);
         for (int i=0; i < 20; i++){
-            pl -> nickname[i] = message[2 + i]; 
+            nickname[i] = message[2 + i];
         }
+        //pl -> nickname = malloc(sizeof(char)*20);
+        //pl -> nickname = nickname;
+        printf("nickname escogido: %s\n", nickname);
+        return nickname;
     }  
  }

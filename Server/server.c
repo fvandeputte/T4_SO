@@ -71,6 +71,9 @@ int main(int argc, char const *argv[])
     //     }
 
     // }
+
+
+
     int m1, m2;
     pthread_t threads[2];
     Jugador players[2];
@@ -88,13 +91,9 @@ int main(int argc, char const *argv[])
         if (n_jugadores < 2){
             pthread_t thread_id;
             sockets[n_jugadores] = new_socket;
-
-            Jugador * jugador;
-            jugador = malloc(sizeof(Jugador));
-            jugador -> socket = new_socket;
-            printf("Jugador, nickname: %u \n",jugador -> nickname[0]);
-            pthread_create(&thread_id, NULL, manejar_conexion_y_nickname, jugador);
-            players[n_jugadores] = *jugador;
+            int *i = malloc(sizeof(*i));
+            *i = new_socket;
+            pthread_create(&thread_id, NULL, manejar_conexion_y_nickname, i);
             threads[n_jugadores] = thread_id;
             n_jugadores ++;
         }
@@ -102,8 +101,11 @@ int main(int argc, char const *argv[])
 
     }
     /// AQUI ESPERAMOS QUE LOS 2 HAYAN ELEGIDO NICKNAME //
-    pthread_join(threads[0], NULL);
-    pthread_join(threads[1], NULL);
+    char * nick_uno;
+    char * nick_dos;
+    pthread_join(threads[0], (void**)&nick_uno);
+    pthread_join(threads[1], (void**)&nick_dos);
+    printf("Nombre (fuera de los threads) : %s \n", nick_uno);
 
     /// Estan los 2 con nombre, tengo que cruzarlos y enviarlos
 
