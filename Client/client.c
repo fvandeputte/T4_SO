@@ -23,10 +23,10 @@ int main(int argc, char const *argv[])
     memset(&serv_addr, '0', sizeof(serv_addr));
   
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
+    serv_addr.sin_port = htons(argv[4]);
       
     // Convert IPv4 and IPv6 addresses from text to binary form
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) 
+    if(inet_pton(AF_INET, argv[2], &serv_addr.sin_addr)<=0) 
     {
         printf("\nInvalid address/ Address not supported \n");
         return -1;
@@ -71,6 +71,19 @@ int main(int argc, char const *argv[])
     }
     // Termino de mandar el nickname
      send(sock, message_with_nickname , 50 * sizeof(unsigned char), 0);
+
+    while (message[0] != 10){
+        if (message[0] != last){
+            valread = read(sock , message, 50);
+            printf("Me llegaron las cartas\n");
+            for (int i=0; i<5; i++) {
+                unsigned char carta = message[2 + 2*i];
+                unsigned char pinta = message[2 + 2*i + 1];
+                printf("[%u, %u]\n", carta, pinta);
+            }
+        }
+    }
+
 
     return 0;
 }
