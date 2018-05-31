@@ -47,7 +47,7 @@ int main(int argc, char const *argv[])
         perror("listen");
         exit(EXIT_FAILURE);
     }
-    int jugadores = 0;
+    int n_jugadores = 0;
     int sockets[2];
     unsigned char last_uno = 0; 
     unsigned char last_dos = 0;
@@ -73,9 +73,10 @@ int main(int argc, char const *argv[])
     // }
     int m1, m2;
     pthread_t threads[2];
-    while (jugadores < 2){ 
+    Jugador players[2];
+    while (n_jugadores < 2){ 
         // Acepto a los clientes
-        printf("jugadores: %i \n", jugadores);
+        printf("jugadores: %i \n", n_jugadores);
         int new_socket;
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
                            (socklen_t*)&addrlen))<0)
@@ -84,21 +85,27 @@ int main(int argc, char const *argv[])
                 exit(EXIT_FAILURE);
         }
 
-        if (jugadores < 2){
+        if (n_jugadores < 2){
             pthread_t thread_id;
-            sockets[jugadores] = new_socket;
-            printf("New socket: %i \n",new_socket);
-            int * socket_mensajero = malloc(sizeof(int));
-            socket_mensajero[0] = new_socket;
-            pthread_create(&thread_id, NULL, manejar_conexion_y_nickname, socket_mensajero);
-            threads[jugadores] = thread_id;
-            jugadores ++;
+            sockets[n_jugadores] = new_socket;
+
+            Jugador * jugador;
+            jugador = malloc(sizeof(Jugador));
+            jugador -> socket = new_socket;
+            printf("Jugador, nickname: %u \n",jugador -> nickname[0]);
+            pthread_create(&thread_id, NULL, manejar_conexion_y_nickname, jugador);
+            players[n_jugadores] = *jugador;
+            threads[n_jugadores] = thread_id;
+            n_jugadores ++;
         }
 
 
     }
+    /// AQUI ESPERAMOS QUE LOS 2 HAYAN ELEGIDO NICKNAME //
     pthread_join(threads[0], NULL);
     pthread_join(threads[1], NULL);
+
+    /// Estan los 2 con nombre, tengo que cruzarlos y enviarlos
 
 
     return 0;

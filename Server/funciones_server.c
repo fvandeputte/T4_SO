@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
+#include "estructura.h"
 #define PORT 8080
 
 void handle_message(int jugadores, int socket, unsigned char message[50]){
@@ -28,11 +29,8 @@ void handle_message(int jugadores, int socket, unsigned char message[50]){
 }
 
  void * manejar_conexion_y_nickname(void *vargp){
-    int *sock = (int *)vargp;
-    int socket = sock[0];
-    printf("Socket: %i \n", socket);
-    printf("Manejando conexion y login de sesion \n");
-    printf("1 \n");
+    Jugador * pl = (Jugador * )vargp;
+    int socket = pl -> socket;
     unsigned char message[50];
     int valread = read(socket, message, 50*sizeof(unsigned char));
     if (message[0] == 1){
@@ -52,16 +50,10 @@ void handle_message(int jugadores, int socket, unsigned char message[50]){
         message_nickname[2] = 0;
         send(socket, message_nickname , 3 * sizeof(unsigned char), 0);
         // AQUI ESPERO DE VUELTA EL NICKNAME --> PASO 4
-        int valread = read(socket, message, 50*sizeof(unsigned char));
-        char nickname[20];
+        int valread = read(socket, message, 50 * sizeof(unsigned char));
+        //pl -> nickname = malloc(sizeof(char)*20);
         for (int i=0; i < 20; i++){
-            nickname[i] = message[2 + i]; 
+            pl -> nickname[i] = message[2 + i]; 
         }
-        printf("Eligio el nickname: %s \n", nickname);
-
-
-
-
-
     }  
  }
