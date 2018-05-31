@@ -1,4 +1,4 @@
-CC=gcc -std=gnu11
+CC=gcc -pthread -std=c99
 
-czfs: server.c funciones_server.c
-	$(CC) -o server server.c funciones_server.c
+server: server.c funciones_server.c
+	$(CC) server.c -o server

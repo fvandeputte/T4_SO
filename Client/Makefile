@@ -1,4 +1,4 @@
-CC=gcc -std=gnu11
+CC=gcc -pthread -std=c99
 
-czfs: client.c funciones.c
-	$(CC) -o client client.c funciones.c
+client: client.c funciones.c
+	$(CC) client.c -o client
