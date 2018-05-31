@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
     // }
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons( argv[4] );
+    address.sin_port = htons(atoi(argv[4]));
       
     // Forcefully attaching socket to the port 8080
     if (bind(server_fd, (struct sockaddr *)&address, 
@@ -85,35 +85,13 @@ int main(int argc, char const *argv[])
         if (jugadores < 2){
             sockets[jugadores] = new_socket;
             jugadores ++;
+            manejar_conexion_y_nickname(new_socket, jugadores);
         }
 
         // valread = read(new_socket, buffer, 1024);
         // printf("%s\n",buffer );
         // send(new_socket , hello , strlen(hello) , 0);
         // printf("Hello message sent\n");
-        if (jugadores == 1){
-            unsigned char mensaje_cliente[50];
-            valread = read(sockets[0], mensaje_cliente, 50*sizeof(unsigned char));
-            if (mensaje_cliente[0] != last_uno){
-                handle_message(jugadores, sockets[0], mensaje_cliente);
-            }
-
-
-        }
-        else if(jugadores == 2){
-            unsigned char mensaje_cliente_uno[50];
-            unsigned char mensaje_cliente_dos[50];
-            m2 = read(sockets[1], mensaje_cliente_dos, 50*sizeof(unsigned char));
-            if (mensaje_cliente_dos[0] != last_dos){
-                handle_message(jugadores, sockets[1], mensaje_cliente_dos);
-            }
-            m1 = read(sockets[0], mensaje_cliente_uno, 50*sizeof(unsigned char));
-            if (mensaje_cliente_uno[0] != last_uno){
-                handle_message(jugadores, sockets[0], mensaje_cliente_uno);
-            }
-
-
-        }
 
     }
 

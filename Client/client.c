@@ -23,10 +23,10 @@ int main(int argc, char const *argv[])
     memset(&serv_addr, '0', sizeof(serv_addr));
   
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(argv[4]);
+    serv_addr.sin_port = htons(PORT);
       
     // Convert IPv4 and IPv6 addresses from text to binary form
-    if(inet_pton(AF_INET, argv[2], &serv_addr.sin_addr)<=0) 
+    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) 
     {
         printf("\nInvalid address/ Address not supported \n");
         return -1;
@@ -59,6 +59,9 @@ int main(int argc, char const *argv[])
             valread = read(sock , message, 50);
         }
     }
+    char str1[20];
+    printf("Enter nickname for playing: ");
+    scanf("%s", str1);
 
     return 0;
 }
