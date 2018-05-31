@@ -66,3 +66,30 @@ void handle_message(int jugadores, int socket, unsigned char message[50]){
         return nickname;
     }  
  }
+
+
+
+
+void start_round(int sockets[2], Jugador players[2]) {
+    unsigned char msg[4];
+    msg[0] = 8;
+    msg[1] = 2; //max plata que podis tener es 65535, razonable
+    msg[2] = players[0].inicial_pot / 256;
+    msg[3] = players[0].inicial_pot % 256;
+    send(sockets[0], msg , 4 * sizeof(unsigned char), 0);
+
+    msg[2] = players[1].inicial_pot / 256;
+    msg[3] = players[1].inicial_pot % 256;
+    send(sockets[1], msg , 4 * sizeof(unsigned char), 0);
+
+}   
+
+unsigned char * get_card() {
+    static unsigned char card[2];
+    int carta = 1 + rand() % 13;
+    int pinta = 1 + rand() % 4;
+    card[0] = carta;
+    card[1] = pinta;
+    return card;
+}
+

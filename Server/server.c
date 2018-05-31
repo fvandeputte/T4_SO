@@ -1,6 +1,7 @@
 // Server side C/C++ program to demonstrate Socket programming
 #include <unistd.h>
 #include <stdio.h>
+#include <time.h>
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <netinet/in.h>
@@ -10,6 +11,7 @@
 #define PORT 8080
 int main(int argc, char const *argv[])
 {
+    srand(time(NULL)); //set seed
     int server_fd, valread;
     struct sockaddr_in address;
     int opt = 1;
@@ -132,10 +134,81 @@ int main(int argc, char const *argv[])
     msg[1] = 2;
     msg[2] = 1000 / 256;
     msg[3] = 1000 % 256;
-    send(sockets[0], message2 , 4 * sizeof(unsigned char), 0);
-    send(sockets[1], message2 , 4 * sizeof(unsigned char), 0);
+    send(sockets[0], msg , 4 * sizeof(unsigned char), 0);
+    send(sockets[1], msg , 4 * sizeof(unsigned char), 0);
 
     // Paquete 7
+    unsigned char msg7[2];
+    msg7[0] = 7;
+    msg7[1] = 0;
+    send(sockets[0], msg7 , 2 * sizeof(unsigned char), 0);
+    send(sockets[1], msg7 , 2 * sizeof(unsigned char), 0);
+
+
+    int turno = 1;
+    // Este while true porque hay muchas rondas: falta condicion termino
+    while (1) {
+        // Paquete 8
+        start_round(sockets, players);
+
+        // Paquete 9
+        unsigned char msg9[3];
+        msg9[0] = 9;
+        msg9[1] = 1;
+        msg9[2] = 10;
+        send(sockets[0], msg9 , 3 * sizeof(unsigned char), 0);
+        send(sockets[1], msg9 , 3 * sizeof(unsigned char), 0);
+
+        // Paquete 10 
+        unsigned char * cards_1[5];
+        for (int i = 0; i < 5; i++) {
+            cards_1[i] = get_card();
+        }
+        
+        unsigned char * cards_2[5];
+        for (int i = 0; i < 5; i++) {
+            cards_2[i] = get_card();
+        }
+
+        unsigned char msg10[12];
+        msg10[0] = 10;
+        msg10[1] = 10;
+        for (int i=0; i<5; i++) {
+            for (int j=0; j<2; j++) {
+                msg10[2 + 2 * i + j] = cards_1[i][j];
+            }
+        }
+        send(sockets[0], msg10 , 12 * sizeof(unsigned char), 0);
+
+        for (int i=0; i<5; i++) {
+            for (int j=0; j<2; j++) {
+                msg10[2 + 2 * i + j] = cards_2[i][j];
+            }
+        }
+        send(sockets[1], msg10 , 12 * sizeof(unsigned char), 0);
+
+
+        // Paquete 11
+        unsigned char msg11[3];
+        msg11[0] = 11;
+        msg11[1] = 1;
+        msg11[2] = turno;
+        send(sockets[0], msg11 , 3 * sizeof(unsigned char), 0);
+        turno = 3 - turno;
+        send(sockets[1], msg11 , 3 * sizeof(unsigned char), 0);
+
+        // Paquete 12
+        unsigned char msg12[2];
+        msg12[0] = 12;
+        msg12[1] = 0;
+        send(sockets[0], msg12 , 2 * sizeof(unsigned char), 0);
+        send(sockets[1], msg12 , 2 * sizeof(unsigned char), 0);
+
+
+    }
+    
+
+
 
     return 0;
 }
