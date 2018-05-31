@@ -59,9 +59,18 @@ int main(int argc, char const *argv[])
             valread = read(sock , message, 50);
         }
     }
-    char str1[20];
+    /// Mando el nickname
+    unsigned char str1[20];
     printf("Enter nickname for playing: ");
     scanf("%s", str1);
+    unsigned char message_with_nickname[50];
+    message_with_nickname[0] = 4;
+    message_with_nickname[1] = 20;
+    for (int i=0; i < 20; i ++){
+        message_with_nickname[2 + i] = str1[i];
+    }
+    // Termino de mandar el nickname
+     send(sock, message_with_nickname , 50 * sizeof(unsigned char), 0);
 
     return 0;
 }

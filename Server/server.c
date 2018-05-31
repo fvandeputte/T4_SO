@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include "funciones_server.c"
+#include <pthread.h>
 #define PORT 8080
 int main(int argc, char const *argv[])
 {
@@ -71,7 +72,8 @@ int main(int argc, char const *argv[])
 
     // }
     int m1, m2;
-    while (1){ 
+    pthread_t threads[2];
+    while (jugadores < 2){ 
         // Acepto a los clientes
         printf("jugadores: %i \n", jugadores);
         int new_socket;
@@ -83,17 +85,20 @@ int main(int argc, char const *argv[])
         }
 
         if (jugadores < 2){
+            pthread_t thread_id;
             sockets[jugadores] = new_socket;
+            printf("New socket: %i \n",new_socket);
+            int * socket_mensajero = malloc(sizeof(int));
+            socket_mensajero[0] = new_socket;
+            pthread_create(&thread_id, NULL, manejar_conexion_y_nickname, socket_mensajero);
+            threads[jugadores] = thread_id;
             jugadores ++;
-            manejar_conexion_y_nickname(new_socket, jugadores);
         }
 
-        // valread = read(new_socket, buffer, 1024);
-        // printf("%s\n",buffer );
-        // send(new_socket , hello , strlen(hello) , 0);
-        // printf("Hello message sent\n");
 
     }
+    pthread_join(threads[0], NULL);
+    pthread_join(threads[1], NULL);
 
 
     return 0;
