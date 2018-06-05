@@ -14,3 +14,9 @@ void start_connnection(int sock){
     send(sock, message , 3 * sizeof(unsigned char), 0);
     printf("Esperando respuesta ... \n");
 }
+int power(int base, unsigned int exp) {
+    int i, result = 1;
+    for (i = 0; i < exp; i++)
+        result *= base;
+    return result;
+ }

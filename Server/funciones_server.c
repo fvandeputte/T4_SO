@@ -50,7 +50,8 @@ void handle_message(int jugadores, int socket, unsigned char message[50]){
         message_nickname[0] = 3;
         message_nickname[1] = 0;
         message_nickname[2] = 0;
-        send(socket, message_nickname , 3 * sizeof(unsigned char), 0);
+        int valid_sent = send(socket, message_nickname , 3 * sizeof(unsigned char), 0);
+        printf("Valor de vaild sent: %i \n",valid_sent);
         // AQUI ESPERO DE VUELTA EL NICKNAME --> PASO 4
         printf("Esperando que usuario ingrese nombre... \n");
         int valread = read(socket, message, 50 * sizeof(unsigned char));

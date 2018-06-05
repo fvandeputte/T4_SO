@@ -104,7 +104,6 @@ int main(int argc, char const *argv[])
     char * nick_dos;
     pthread_join(threads[0], (void**)&nick_uno);
     pthread_join(threads[1], (void**)&nick_dos);
-    printf("Nombre (fuera de los threads) : %s \n", nick_uno);
 
     /// Estan los 2 con nombre, tengo que cruzarlos y enviarlos
     

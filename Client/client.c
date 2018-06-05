@@ -1,9 +1,13 @@
 // Client side C/C++ program to demonstrate Socket programming
+#include <unistd.h>
 #include <stdio.h>
+#include <time.h>
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <pthread.h>
+#include "math.h"
 #include "funciones.c"
 #define PORT 8080
   
@@ -23,7 +27,7 @@ int main(int argc, char const *argv[])
     memset(&serv_addr, '0', sizeof(serv_addr));
   
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(argv[4]);
+    serv_addr.sin_port = htons(atoi(argv[4]));
       
     // Convert IPv4 and IPv6 addresses from text to binary form
     if(inet_pton(AF_INET, argv[2], &serv_addr.sin_addr)<=0) 
@@ -69,8 +73,47 @@ int main(int argc, char const *argv[])
     for (int i=0; i < 20; i ++){
         message_with_nickname[2 + i] = str1[i];
     }
+    send(sock, message_with_nickname , 50 * sizeof(unsigned char), 0);
     // Termino de mandar el nickname
-     send(sock, message_with_nickname , 50 * sizeof(unsigned char), 0);
+
+
+
+    // PASO 5, me envien nickname contrincante
+    while (message[0] != 5){
+        valread = read(sock, message, 50);
+    }
+    char nickname_rival[message[1]];
+    for (int n_caracter; n_caracter <  message[1]; n_caracter++){
+        nickname_rival[n_caracter] = message[2 + n_caracter];
+    }
+    printf("¡Tienes rival! Su nombre es %s \n", nickname_rival);
+    sleep(2);
+    printf("\n\n\n\n");
+    //Termino Paso 5
+
+
+
+
+
+
+    //PASO 6 me dan me inicial pot
+    while (message[0] != 6){
+        valread = read(sock, message, 50);
+    }
+    int pot = 0;
+    printf("En duro: %u \n", message[1]);
+    int size = message[1];
+    int j;
+    printf("Tamaño: %i \n", size);
+    for (int i= size - 1; i >= 0; i--){
+        j = size - 1 - i;
+        pot += power(256,i) * message[2 + j];
+    }
+    printf("¡Tu monto inicial es de: %i \n", pot);
+    printf("\n\n\n\n");
+    //FIn Paso 6
+
+    
 
     while (message[0] != 10){
         if (message[0] != last){
