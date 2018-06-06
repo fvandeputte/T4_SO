@@ -9,6 +9,26 @@
 #include "funciones_server.c"
 #include <pthread.h>
 #define PORT 8080
+
+
+unsigned char mazo[52][2] = {{1, 1}, {2, 1}, {3, 1}, {4, 1}, {5, 1}, {6, 1}, {7, 1}, {8, 1}, {9, 1}, {10, 1}, {11, 1}, {12, 1}, {13, 1}, {1, 2}, {2, 2}, {3, 2}, {4, 2}, {5, 2}, {6, 2}, {7, 2}, {8, 2}, {9, 2}, {10, 2}, {11, 2}, {12, 2}, {13, 2}, {1, 3}, {2, 3}, {3, 3}, {4, 3}, {5, 3}, {6, 3}, {7, 3}, {8, 3}, {9, 3}, {10, 3}, {11, 3}, {12, 3}, {13, 3}, {1, 4}, {2, 4}, {3, 4}, {4, 4}, {5, 4}, {6, 4}, {7, 4}, {8, 4}, {9, 4}, {10, 4}, {11, 4}, {12, 4}, {13, 4}};
+
+
+// unsigned char[52][2] create_mazo() {
+//     unsigned char aux_maxo[52][2];
+//     for (int i=0; i<4; i++) {
+//         for (int j=0; j<13; j++) {
+//             aux_mazo[13*i + j][0] = j;
+//             aux_mazo[13*i + j][1] = i;
+//         }
+//     }
+//     return aux_mazo
+// }
+
+
+
+
+
 int main(int argc, char const *argv[])
 {
     srand(time(NULL)); //set seed
@@ -146,7 +166,13 @@ int main(int argc, char const *argv[])
 
     int turno = 1;
     // Este while true porque hay muchas rondas: falta condicion termino
-    while (1) {
+    // while (1) {
+
+        // if (players[0].inicial_pot < 10 || players[1].inicial_pot < 10) {
+        //     break;
+        //     // se termina el juego, mandar ultimos paquetes
+        // }
+
         // Paquete 8
         start_round(sockets, players);
 
@@ -157,33 +183,43 @@ int main(int argc, char const *argv[])
         msg9[2] = 10;
         send(sockets[0], msg9 , 3 * sizeof(unsigned char), 0);
         send(sockets[1], msg9 , 3 * sizeof(unsigned char), 0);
+        sleep(2);
 
-        // Paquete 10 
-        unsigned char * cards_1[5];
-        for (int i = 0; i < 5; i++) {
-            cards_1[i] = get_card();
-        }
-        
-        unsigned char * cards_2[5];
-        for (int i = 0; i < 5; i++) {
-            cards_2[i] = get_card();
+        // Paquete 10
+
+        int count = 0;
+        int cartas_idxs[20];
+        for (int i=0; i<20; i++) {
+            cartas_idxs[i] = -1;
         }
 
+
+        while (count < 10) {
+            int carta_idx =  rand() % 52;
+            if (not_picked(carta_idx, cartas_idxs, count)) {
+                cartas_idxs[count++] = carta_idx;
+            }
+        }
+
+
+        sleep(2);
         unsigned char msg10[12];
         msg10[0] = 10;
         msg10[1] = 10;
         for (int i=0; i<5; i++) {
             for (int j=0; j<2; j++) {
-                msg10[2 + 2 * i + j] = cards_1[i][j];
+                msg10[2 + 2 * i + j] = mazo[cartas_idxs[i]][j];
             }
         }
-        send(sockets[0], msg10 , 12 * sizeof(unsigned char), 0);
 
+        send(sockets[0], msg10 , 12 * sizeof(unsigned char), 0);
+        sleep(2);
         for (int i=0; i<5; i++) {
             for (int j=0; j<2; j++) {
-                msg10[2 + 2 * i + j] = cards_2[i][j];
+                msg10[2 + 2 * i + j] = mazo[cartas_idxs[5 + i]][j];
             }
         }
+
         send(sockets[1], msg10 , 12 * sizeof(unsigned char), 0);
 
 
@@ -204,7 +240,7 @@ int main(int argc, char const *argv[])
         send(sockets[1], msg12 , 2 * sizeof(unsigned char), 0);
 
 
-    }
+    // }
     
 
 

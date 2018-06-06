@@ -94,3 +94,12 @@ unsigned char * get_card() {
     return card;
 }
 
+
+int not_picked(int carta_idx, int cartas_idxs[20], int count) {
+    for (int i=0; i<count; i++) {
+        if (carta_idx == cartas_idxs[i]) {
+            return 0;
+        }
+    }
+    return 1;
+}

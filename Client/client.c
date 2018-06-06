@@ -111,19 +111,20 @@ int main(int argc, char const *argv[])
     }
     printf("¡Tu monto inicial es de: %i \n", pot);
     printf("\n\n\n\n");
-    //FIn Paso 6
+    //Fin Paso 6
 
     
-
     while (message[0] != 10){
         if (message[0] != last){
-            valread = read(sock , message, 50);
+            valread = read(sock, message, 50);
             printf("Me llegaron las cartas\n");
             for (int i=0; i<5; i++) {
                 unsigned char carta = message[2 + 2*i];
                 unsigned char pinta = message[2 + 2*i + 1];
                 printf("[%u, %u]\n", carta, pinta);
             }
+            sleep(1);
+            break;
         }
     }
 
