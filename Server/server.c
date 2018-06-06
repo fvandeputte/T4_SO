@@ -14,6 +14,15 @@
 unsigned char mazo[52][2] = {{1, 1}, {2, 1}, {3, 1}, {4, 1}, {5, 1}, {6, 1}, {7, 1}, {8, 1}, {9, 1}, {10, 1}, {11, 1}, {12, 1}, {13, 1}, {1, 2}, {2, 2}, {3, 2}, {4, 2}, {5, 2}, {6, 2}, {7, 2}, {8, 2}, {9, 2}, {10, 2}, {11, 2}, {12, 2}, {13, 2}, {1, 3}, {2, 3}, {3, 3}, {4, 3}, {5, 3}, {6, 3}, {7, 3}, {8, 3}, {9, 3}, {10, 3}, {11, 3}, {12, 3}, {13, 3}, {1, 4}, {2, 4}, {3, 4}, {4, 4}, {5, 4}, {6, 4}, {7, 4}, {8, 4}, {9, 4}, {10, 4}, {11, 4}, {12, 4}, {13, 4}};
 
 
+int get_idx(unsigned char carta, unsigned char pinta, unsigned char mazo[52][2]) {
+    int u = 0;
+    while (mazo[u][0] != carta || mazo[u][1] != pinta) {
+        u++;
+    }
+    return u;
+}
+
+
 // unsigned char[52][2] create_mazo() {
 //     unsigned char aux_maxo[52][2];
 //     for (int i=0; i<4; i++) {
@@ -238,6 +247,84 @@ int main(int argc, char const *argv[])
         msg12[1] = 0;
         send(sockets[0], msg12 , 2 * sizeof(unsigned char), 0);
         send(sockets[1], msg12 , 2 * sizeof(unsigned char), 0);
+
+
+        // Paquete 13: este se lee, no se manda
+
+        unsigned char message[50];
+        sleep(1);
+        valread = read(sockets[0], message, 50);
+
+        while (message[0] != 13) {
+            unsigned char nro_cartas = message[1] / 2;
+            for (int cambio = 0; cambio<nro_cartas; cambio++) {
+                unsigned char carta = message[2 + 2 * cambio];
+                unsigned char pinta = message[2 + 2 * cambio + 1];
+                int idx_carta = get_idx(carta, pinta, mazo);
+                int p = 0;
+                while (cartas_idxs[p] != idx_carta) {
+                    p++;
+                }
+                int carta_idx =  rand() % 52;
+                while (!not_picked(carta_idx, cartas_idxs, 10)) {
+                    carta_idx =  rand() % 52;
+                }
+                cartas_idxs[p] = carta_idx;
+                printf("Tengo que cambiar %u, %u; p es %d; carta ahora es %u, %u\n", carta, pinta, p, mazo[cartas_idxs[p]][0], mazo[cartas_idxs[p]][1]);
+            }
+
+            // Enviar nuevo paquete 10 con las cartas actualizadas
+            unsigned char msg10a[12];
+            msg10a[0] = 10;
+            msg10a[1] = 12;
+            for (int i=0; i<5; i++) {
+                for (int j=0; j<2; j++) {
+                    msg10a[2 + 2 * i + j] = mazo[cartas_idxs[i]][j];
+                }
+            }
+            send(sockets[0], msg10a, 12 * sizeof(unsigned char), 0);
+        }
+
+        sleep(1);
+        valread = read(sockets[1], message, 50);
+        sleep(1);
+
+        if (message[0] == 13) {
+            unsigned char nro_cartas = message[1] / 2;
+            for (int cambio = 0; cambio<nro_cartas; cambio++) {
+                unsigned char carta = message[2 + 2 * cambio];
+                unsigned char pinta = message[2 + 2 * cambio + 1];
+                int idx_carta = get_idx(carta, pinta, mazo);
+                int p = 0;
+                while (cartas_idxs[p] != idx_carta) {
+                    p++;
+                }
+                int carta_idx =  rand() % 52;
+                while (!not_picked(carta_idx, cartas_idxs, 10)) {
+                    carta_idx =  rand() % 52;
+                }
+                cartas_idxs[p] = carta_idx;
+                printf("Tengo que cambiar %u, %u; p es %d; carta ahora es %u, %u\n", carta, pinta, p, mazo[cartas_idxs[p]][0], mazo[cartas_idxs[p]][1]);
+            }
+
+            // Enviar nuevo paquete 10 con las cartas actualizadas
+            unsigned char msg10b[12];
+            msg10b[0] = 10;
+            msg10b[1] = 12;
+            for (int i=0; i<5; i++) {
+                for (int j=0; j<2; j++) {
+                    msg10b[2 + 2 * i + j] = mazo[cartas_idxs[5 + i]][j];
+                }
+            }
+            send(sockets[1], msg10b, 12 * sizeof(unsigned char), 0);
+        } else {
+            printf("LLegó paquete %u\n", message[0]);
+        }
+
+        // Paquete 14
+        
+
+
 
 
     // }

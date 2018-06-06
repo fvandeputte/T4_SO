@@ -114,6 +114,7 @@ int main(int argc, char const *argv[])
     //Fin Paso 6
 
     
+    unsigned char cartas[5][2];
     while (message[0] != 10){
         if (message[0] != last){
             valread = read(sock, message, 50);
@@ -121,7 +122,74 @@ int main(int argc, char const *argv[])
             for (int i=0; i<5; i++) {
                 unsigned char carta = message[2 + 2*i];
                 unsigned char pinta = message[2 + 2*i + 1];
-                printf("[%u, %u]\n", carta, pinta);
+                printf("(%d) [%u, %u]\n", i+1, carta, pinta);
+                cartas[i][0] = carta;
+                cartas[i][1] = pinta;
+            }
+            sleep(1);
+            break;
+        }
+    }
+
+    // Leer 11 
+
+    int primero = 0;
+    while (message[0] != 11){
+        if (message[0] != last){
+            valread = read(sock, message, 50);
+            if (message[2] == 1) {
+                primero = 1;
+            } else {
+                primero = 0;
+            }
+            break;
+        }
+    }
+
+
+
+    int n;
+    int last_n = -1;
+    int changes[5];
+    int cont = 0;
+    printf("¿Qué carta quieres cambiar? (un número entre 1 y 5, o f si ninguna más) ");
+    while(scanf("%d",&n) == 1) {
+        if (n != last_n && n >= 1 && n <= 5) {
+            changes[cont++] = n;
+            last_n = n;
+        }
+        if (n < 1 || n > 5) {
+            printf("Número fuera del rango. ¿Qué carta quieres cambiar? (un número entre 1 y 5, o f si ninguna más) ");
+        } else {
+            printf("¿Qué carta quieres cambiar? (un número entre 1 y 5, o f si ninguna más) ");
+        }
+    }
+    for (int i=0; i<cont; i++) {
+        printf("%d ", changes[i]);
+    }
+    printf("\n");
+    printf("Cambios son %d\n", cont);
+    unsigned char* msg13 = calloc(2 + 2 * cont, sizeof(unsigned char));
+    msg13[0] = 13;
+    msg13[1] = 2 * cont;
+    for (int i=0; i<cont; i++) {
+        msg13[2 + 2 * i] = cartas[changes[i] - 1][0];
+        msg13[2 + 2 * i + 1] = cartas[changes[i] - 1][1];
+    }
+
+    send(sock, msg13 , (2 + 2 * cont) * sizeof(unsigned char), 0);
+
+    sleep(1);
+    while (message[0] != 10){
+        if (message[0] != last){
+            valread = read(sock, message, 50);
+            printf("Me llegaron las cartas con los cambios\n");
+            for (int i=0; i<5; i++) {
+                unsigned char carta = message[2 + 2*i];
+                unsigned char pinta = message[2 + 2*i + 1];
+                printf("(%d) [%u, %u]\n", i+1, carta, pinta);
+                cartas[i][0] = carta;
+                cartas[i][1] = pinta;
             }
             sleep(1);
             break;
