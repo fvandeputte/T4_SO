@@ -1,7 +1,7 @@
 struct jugador
 {
     char * nickname;
-    int inicial_pot;
+    int pot;
     int socket;
     char letra;
 };
