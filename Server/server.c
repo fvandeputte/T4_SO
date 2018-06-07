@@ -180,12 +180,12 @@ int main(int argc, char const *argv[])
 
     int turno = rand() % 2;
     // Este while true porque hay muchas rondas: falta condicion termino
-    // while (1) {
+    while (1) {
 
-        // if (players[0].pot < 10 || players[1].pot < 10) {
-        //     break;
-        //     // se termina el juego, mandar ultimos paquetes
-        // }
+        if (players[0].pot < 10 || players[1].pot < 10) {
+            break;
+            // se termina el juego, mandar ultimos paquetes
+        }
 
         // Paquete 8
         sleep(1);
@@ -248,19 +248,27 @@ int main(int argc, char const *argv[])
 
         // Paquete 13: este se lee, no se manda
 
-        unsigned char message[20];
-        valread = read(sockets[0], message, 20);
+        unsigned char message[12];
+        valread = read(sockets[0], message, 12);
         printf("Mensaje en 0 del primero: %u \n", message[0]);
         if (message[0] == 13) {
             unsigned char nro_cartas = message[1] / 2;
+            printf("Tengo que cambiar %d cartas\n", nro_cartas);
+            printf("message es ");
+            for (int i=0; i<message[1]; i++) {
+                printf("%u ", message[i]);
+            }
+            printf("\n");
             for (int cambio = 0; cambio<nro_cartas; cambio++) {
                 unsigned char carta = message[2 + 2 * cambio];
                 unsigned char pinta = message[2 + 2 * cambio + 1];
+                printf("carta es %d, pinta es %d\n", carta, pinta);
                 int idx_carta = get_idx(carta, pinta, mazo);
                 int p = 0;
                 while (cartas_idxs[p] != idx_carta) {
                     p++;
                 }
+                printf("p es %d\n", p);                
                 int carta_idx =  rand() % 52;
                 while (!not_picked(carta_idx, cartas_idxs, 10)) {
                     carta_idx =  rand() % 52;
@@ -288,6 +296,14 @@ int main(int argc, char const *argv[])
 
         if (message[0] == 13) {
             unsigned char nro_cartas = message[1] / 2;
+            printf("Tengo que cambiar %d cartas\n", nro_cartas);
+            
+            printf("message es ");
+            for (int i=0; i<message[1]; i++) {
+                printf("%u \n", message[i]);
+            }
+            printf("\n");
+
             for (int cambio = 0; cambio<nro_cartas; cambio++) {
                 unsigned char carta = message[2 + 2 * cambio];
                 unsigned char pinta = message[2 + 2 * cambio + 1];
@@ -296,6 +312,7 @@ int main(int argc, char const *argv[])
                 while (cartas_idxs[p] != idx_carta) {
                     p++;
                 }
+                printf("p es %d\n", p);
                 int carta_idx =  rand() % 52;
                 while (!not_picked(carta_idx, cartas_idxs, 10)) {
                     carta_idx =  rand() % 52;
@@ -344,15 +361,15 @@ int main(int argc, char const *argv[])
 
         // Paquetes 14, 15, 16 y 17
         
-        // int l_inf = 0;
-        // int l_sup;
-        // if ()
+        
         sleep(1);
         int BETS[] = {-1, 0, 0, 100, 200, 200}; //-1 es nada, es para que parta en indice 1
         int done1 = 0;
         int winner = 99;
-        unsigned char bet_id;
+        unsigned char bet_id1;
+        unsigned char bet_id2;
         while (!done1) {
+            printf("Not done1\n");
             int sup;
             if (players[turno].pot >= 200) {
                 sup = 7;
@@ -381,21 +398,26 @@ int main(int argc, char const *argv[])
 
             valread = read(sockets[turno], message, 20);
             if (message[0] == 15) {
-                bet_id = message[2];
+                bet_id1 = message[2];
+                printf("bet_id1 es %u\n", bet_id1);
             }
-            if (bet_id == 1) {
+            if (bet_id1 == 1) {
                 winner = 1 - turno;
+                msg17[0] = 17;
+                msg17[1] = 0;
+                done1 = 1;
+                send(sockets[turno], msg17, 2 * sizeof(unsigned char), 0);
             }
             if (winner == 99) {
                 unsigned char msg17[2];
                 unsigned char msg16[2];
                 if (turno == 0) {
-                    if (bet_id > 2 && BETS[bet_id] <= players[0].pot) {
+                    if (bet_id1 > 2 && BETS[bet_id1] <= players[0].pot) {
                         msg17[0] = 17;
                         msg17[1] = 0;
                         done1 = 1;
                         send(sockets[0], msg17, 2 * sizeof(unsigned char), 0);
-                    } else if (bet_id <= 2) {
+                    } else if (bet_id1 <= 2) {
                         msg17[0] = 17;
                         msg17[1] = 0;
                         done1 = 1;
@@ -406,12 +428,12 @@ int main(int argc, char const *argv[])
                         send(sockets[0], msg16, 2 * sizeof(unsigned char), 0);
                     }
                 } else {
-                    if (bet_id > 2 && BETS[bet_id] <= players[1].pot) {
+                    if (bet_id1 > 2 && BETS[bet_id1] <= players[1].pot) {
                         msg17[0] = 17;
                         msg17[1] = 0;
                         done1 = 1;
                         send(sockets[1], msg17, 2 * sizeof(unsigned char), 0);
-                    } else if (bet_id <= 2) {
+                    } else if (bet_id1 <= 2) {
                         msg17[0] = 17;
                         msg17[1] = 0;
                         done1 = 1;
@@ -424,53 +446,46 @@ int main(int argc, char const *argv[])
                 }
             }
         }
-        winner = 1 - turno;
+        sleep(1);
         int done2 = 0;
         while (!done2 && winner == 99) {
-            int BETS_2ND_PLAYER[6];
-            BETS_2ND_PLAYER[0] = -1;
-            BETS_2ND_PLAYER[1] = 0;
-            for (int i=bet_id; i<6; i++) {
-                if (BETS[i] <= players[1 - turno].pot) {
-                    BETS_2ND_PLAYER[i] = BETS[i];
-                } else {
-                    BETS_2ND_PLAYER[i] = -10;
-                }
-            }
+            printf("Not done2 and no winner yet\n");
 
-            int count2 = 0;
-            for (int i=0; i < 6; i++) {
-                if (BETS_2ND_PLAYER[i] >= 0) {
+            int count2 = 1;
+            for (int i=2; i < 6; i++) {
+                if (BETS[i] <= players[turno].pot && (i >= bet_id1 || bet_id1 == 1)) {
                     count2++;
                 }
             }
-
+            printf("ACA1\n");
             unsigned char msg14b[2 + count2];
             msg14b[0] = 14;
             msg14b[1] = count2;
             for (int i=0; i<count2; i++) {
-                msg14b[2 + i] = BETS_2ND_PLAYER[bet_id + i];
+                if (BETS[i] <= players[turno].pot && (i >= bet_id1 || bet_id1 == 1)) {
+                    msg14b[2 + i] = i;
+                }
             }
             send(sockets[1 - turno], msg14b, count2 * sizeof(unsigned char), 0);
 
-            valread = read(sockets[turno], message, 20);
-
+            valread = read(sockets[1 - turno], message, 20);
+            printf("ACA2\n");
             if (message[0] == 15) {
-                bet_id = message[2];
+                bet_id2 = message[2];
             }
-            if (bet_id == 1) {
+            if (bet_id2 == 1) {
                 winner = turno;
             }
             if (winner == 99) {
                 unsigned char msg17[2];
                 unsigned char msg16[2];
                 if (turno == 1) {
-                    if (bet_id > 2 && BETS[bet_id] <= players[0].pot) {
+                    if (bet_id2 > 2 && BETS[bet_id2] <= players[0].pot) {
                         msg17[0] = 17;
                         msg17[1] = 0;
                         done2 = 1;
                         send(sockets[0], msg17, 2 * sizeof(unsigned char), 0);
-                    } else if (bet_id <= 2) {
+                    } else if (bet_id2 <= 2) {
                         msg17[0] = 17;
                         msg17[1] = 0;
                         done2 = 1;
@@ -481,12 +496,12 @@ int main(int argc, char const *argv[])
                         send(sockets[0], msg16, 2 * sizeof(unsigned char), 0);
                     }
                 } else {
-                    if (bet_id > 2 && BETS[bet_id] <= players[1].pot) {
+                    if (bet_id2 > 2 && BETS[bet_id2] <= players[1].pot) {
                         msg17[0] = 17;
                         msg17[1] = 0;
                         done2 = 1;
                         send(sockets[1], msg17, 2 * sizeof(unsigned char), 0);
-                    } else if (bet_id <= 2) {
+                    } else if (bet_id2 <= 2) {
                         msg17[0] = 17;
                         msg17[1] = 0;
                         done2 = 1;
@@ -534,10 +549,56 @@ int main(int argc, char const *argv[])
                 winner = 1;
             }
             printf("Scores son %f, %f\n", scores[0], scores[1]);
+        } else { // winner se definió antes, en caso fold, respecto a turno, no respecto a cada jugador
+            if (turno == 1) {
+                winner = 1 - winner;
+            }
         }
-    // }
-    
+        unsigned char msg20[3];
+        msg20[0] = 20;
+        msg20[1] = 1;
+        if (winner == 0) {
+            msg20[2] = 1;
+        } else {
+            msg20[2] = 0;
+        }
+        send(sockets[0], msg20, 3 * sizeof(unsigned char), 0);
+        msg20[2] = 1 - msg20[2];
+        send(sockets[1], msg20, 3 * sizeof(unsigned char), 0);
 
+
+        // Paquete 21
+        // tenemos bet_id1 y bet_id2 (por turnos: bet_id1 del q jugo primero), tenemos winner (por jugador: el jugador 1 es 0, el segundo es 1): actualizar players y mandarlos
+        if (turno == 0) {
+            players[winner].pot += bet_id2;
+            players[1 - winner].pot -= bet_id1;
+        } else {
+            players[winner].pot += bet_id1;
+            players[1 - winner].pot += bet_id2;
+        }
+        unsigned char msg21[4];
+        msg21[0] = 21;
+        msg21[1] = 2;
+        msg21[2] = players[0].pot / 256;
+        msg21[3] = players[0].pot % 256;
+        send(sockets[0], msg21, 4 * sizeof(unsigned char), 0);
+
+        sleep(1);
+        msg21[2] = players[1].pot / 256;
+        msg21[3] = players[1].pot % 256;
+        send(sockets[1], msg21, 4 * sizeof(unsigned char), 0);
+
+    }
+    
+    // Paquete 22
+    unsigned char msg22[2];
+    msg22[0] = 22;
+    msg22[1] = 0;
+    send(sockets[0], msg22, 2 * sizeof(unsigned char), 0);
+    send(sockets[1], msg22, 2 * sizeof(unsigned char), 0);
+
+
+    // Paquete 23
 
 
     return 0;

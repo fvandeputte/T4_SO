@@ -42,12 +42,13 @@ int imprimir_pos(unsigned char id){
     }
 }
 
+unsigned char cartas[5][2];
+
 void * handle_message(void * msg){
     unsigned char * message = ((unsigned char *) msg);
     int size;
     int j;
-    int contador_cartas = 0;
-    unsigned char cartas[5][2];
+    int contador_cartas = 0;    
     if (message[0] == 2){
         printf("¡Tu conexión fue exitosa! Conectado al Servidor\n");
     }
@@ -135,12 +136,15 @@ void * handle_message(void * msg){
         for (int i=0; i<cont; i++) {
             printf("%d ", changes[i]);
         }
+        printf("\n");
         unsigned char* msg13 = calloc(2 + 2 * cont, sizeof(unsigned char));
         msg13[0] = 13;
         msg13[1] = 2 * cont;
         for (int i=0; i<cont; i++) {
             msg13[2 + 2 * i] = cartas[changes[i] - 1][0];
             msg13[2 + 2 * i + 1] = cartas[changes[i] - 1][1];
+            printf("i es %d, changes[i] es %d\n", i, changes[i]);
+            printf("Poniendo en el mensaje la carta %u, %u\n", cartas[changes[i] - 1][0], cartas[changes[i] - 1][1]);
         }
         send(sock, msg13 , (2 + 2 * cont) * sizeof(unsigned char), 0);
     }
@@ -160,12 +164,20 @@ void * handle_message(void * msg){
             imprimir_pos(message[2+i]);
         }
         int n_rpta;
-        scanf("Ingrese tan solo el numero de apuesta: %d",&n_rpta);
+        printf("Ingrese tan solo el numero de apuesta: ");
+        scanf("%d",&n_rpta);
+        printf("n_rpta es %d\n", n_rpta);
         unsigned msg_bet[50];
         msg_bet[0] = 15;
         msg_bet[1] = 1;
         msg_bet[2] = n_rpta % 256;
         send(sock, msg_bet, 3, 0);
+    }
+    else if (message[0] == 17) {
+        printf("OK BET\n");
+    }
+    else if (message[0] == 16) {
+        printf("ERROR BET\n");
     }
 }
 
