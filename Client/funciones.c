@@ -164,9 +164,12 @@ void * handle_message(void * msg){
             imprimir_pos(message[2+i]);
         }
         int n_rpta;
-        printf("Ingrese tan solo el numero de apuesta: ");
-        scanf("%d",&n_rpta);
-        printf("n_rpta es %d\n", n_rpta);
+        printf("¿Cuanto desea apostar? (inserte el numero) ");
+        char c;
+        c = getchar();
+        c = getchar();
+        c = getchar();
+        printf("char es %c\n", c);
         unsigned msg_bet[50];
         msg_bet[0] = 15;
         msg_bet[1] = 1;
@@ -178,6 +181,28 @@ void * handle_message(void * msg){
     }
     else if (message[0] == 16) {
         printf("ERROR BET\n");
+    }
+    else if (message[0] == 18){
+        printf("Ronda Termino\n\n\n");
+    }
+    else if(message[0] == 19){
+        printf("Estas fueron las cartas de tu rival \n");
+        unsigned char carta_rival;
+        unsigned char pinta_rival;
+        for (int i=0; i<5; i++) {
+            carta_rival = message[2 + 2*i];
+            pinta_rival = message[2 + 2*i + 1];
+            printf("(%d) [%u, %u]\n", i+1, carta_rival, pinta_rival);
+
+        }
+    }
+    else if (message[0] == 20){
+        if (message[2] == 1){
+            printf("Ganaste la ronda\n");
+        }
+        else {
+            printf("Perdiste esta roonda\n");
+        }
     }
 }
 

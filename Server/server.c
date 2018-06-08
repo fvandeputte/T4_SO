@@ -43,10 +43,7 @@ int main(int argc, char const *argv[])
     srand(time(NULL)); //set seed
     int server_fd, valread;
     struct sockaddr_in address;
-    int opt = 1;
     int addrlen = sizeof(address);
-    char buffer[1024] = {0};
-      
     // Creating socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
     {
@@ -79,31 +76,6 @@ int main(int argc, char const *argv[])
     }
     int n_jugadores = 0;
     int sockets[2];
-    unsigned char last_uno = 0; 
-    unsigned char last_dos = 0;
-    // unsigned char rpta[16];
-    // int last_socket = -1;
-    // while (1){
-
-    //     // Continuamente estamos estamos escuchando sockets
-    //     if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
-    //                        (socklen_t*)&addrlen))<0)
-    //     {
-    //         perror("accept");
-    //         exit(EXIT_FAILURE);
-    //     }
-
-    //     valread = read(new_socket,rpta, 16);
-    //     if ((rpta[0] != 0 && rpta[0] != last) || new_socket != last_socket){
-    //         last = rpta[0];
-    //         printf("%u\n", rpta[0]);
-    //         last_socket = new_socket;
-    //     }
-
-    // }
-
-
-
     int m1, m2;
     pthread_t threads[2];
     Jugador players[2];
@@ -397,6 +369,7 @@ int main(int argc, char const *argv[])
             send(sockets[turno], msg14a, sup * sizeof(unsigned char), 0);
 
             valread = read(sockets[turno], message, 20);
+            unsigned char * msg17 = calloc(sup, sizeof(unsigned char));
             if (message[0] == 15) {
                 bet_id1 = message[2];
                 printf("bet_id1 es %u\n", bet_id1);
@@ -520,6 +493,7 @@ int main(int argc, char const *argv[])
         unsigned char msg18[2];
         msg18[0] = 18;
         msg18[1] = 0;
+        sleep(1);
         send(sockets[0], msg18, 2 * sizeof(unsigned char), 0);
         send(sockets[1], msg18, 2 * sizeof(unsigned char), 0);
 
@@ -532,6 +506,7 @@ int main(int argc, char const *argv[])
             msg19[2 + 2*i] = mazo[cartas_idxs[5 + i]][0];
             msg19[2 + 2*i + 1] = mazo[cartas_idxs[5 + i]][1];
         }
+        sleep(1);
         send(sockets[0], msg19, 12 * sizeof(unsigned char), 0);
 
         for (int i=0; i<5; i++) {
