@@ -23,20 +23,6 @@ int get_idx(unsigned char carta, unsigned char pinta, unsigned char mazo[52][2])
 }
 
 
-// unsigned char[52][2] create_mazo() {
-//     unsigned char aux_maxo[52][2];
-//     for (int i=0; i<4; i++) {
-//         for (int j=0; j<13; j++) {
-//             aux_mazo[13*i + j][0] = j;
-//             aux_mazo[13*i + j][1] = i;
-//         }
-//     }
-//     return aux_mazo
-// }
-
-
-
-
 
 int main(int argc, char const *argv[])
 {
@@ -60,7 +46,12 @@ int main(int argc, char const *argv[])
     // }
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(atoi(argv[4]));
+    if (strcmp(argv[3], "-p") == 0) {
+        address.sin_port = htons(atoi(argv[4]));
+    } else {
+        address.sin_port = htons(atoi(argv[2]));
+    }
+    
       
     // Forcefully attaching socket to the port 8080
     if (bind(server_fd, (struct sockaddr *)&address, 
@@ -335,7 +326,7 @@ int main(int argc, char const *argv[])
         
         
         sleep(1);
-        int BETS[] = {-1, 0, 0, 100, 200, 200}; //-1 es nada, es para que parta en indice 1
+        int BETS[] = {-1, 0, 0, 100, 200, 500}; //-1 es nada, es para que parta en indice 1
         int done1 = 0;
         int winner = 99;
         unsigned char bet_id1;
@@ -367,8 +358,10 @@ int main(int argc, char const *argv[])
                 msg14a[6] = 5;
             }
             send(sockets[turno], msg14a, sup * sizeof(unsigned char), 0);
-
+            free(msg14a);
+            sleep(1);
             valread = read(sockets[turno], message, 20);
+            sleep(1);
             unsigned char * msg17 = calloc(sup, sizeof(unsigned char));
             if (message[0] == 15) {
                 bet_id1 = message[2];
@@ -421,30 +414,37 @@ int main(int argc, char const *argv[])
         }
         sleep(1);
         int done2 = 0;
+        int SEC_BETS[5];
+        SEC_BETS[0] = 1;
         while (!done2 && winner == 99) {
             printf("Not done2 and no winner yet\n");
 
             int count2 = 1;
             for (int i=2; i < 6; i++) {
                 if (BETS[i] <= players[turno].pot && (i >= bet_id1 || bet_id1 == 1)) {
-                    count2++;
+                    // printf("Valid possible bet es %d\n", i);
+                    SEC_BETS[count2++] = i;
+                    // count2++;
                 }
             }
-            printf("ACA1\n");
-            unsigned char msg14b[2 + count2];
+            // printf("ACA1\n");
+            // printf("count2 es %d\n", count2);
+            unsigned char * msg14b = calloc(2 + count2, sizeof(unsigned char));
             msg14b[0] = 14;
             msg14b[1] = count2;
             for (int i=0; i<count2; i++) {
-                if (BETS[i] <= players[turno].pot && (i >= bet_id1 || bet_id1 == 1)) {
-                    msg14b[2 + i] = i;
-                }
+                msg14b[2 + i] = SEC_BETS[i];
+                // printf("msg14b[2 + i] es %d\n", msg14b[2 + i]);
             }
-            send(sockets[1 - turno], msg14b, count2 * sizeof(unsigned char), 0);
+            sleep(1);
+            send(sockets[1 - turno], msg14b, (2 + count2) * sizeof(unsigned char), 0);
+            free(msg14b);
 
             valread = read(sockets[1 - turno], message, 20);
-            printf("ACA2\n");
+            // printf("ACA2\n");
             if (message[0] == 15) {
                 bet_id2 = message[2];
+                printf("bet_id2 es %u\n", bet_id2);
             }
             if (bet_id2 == 1) {
                 winner = turno;
@@ -488,6 +488,17 @@ int main(int argc, char const *argv[])
             }
         }
         
+
+        if (bet_id2 > bet_id1 && bet_id1 != 1) { // nueva apuesta jugador del turno, fold o igualar
+            unsigned char * msg14c = calloc(4, sizeof(unsigned char));
+            msg14c[0] = 14;
+            msg14c[1] = 4;
+            msg14c[2] = 1;
+            msg14c[3] = 6;
+            // FALTA
+
+
+        }
 
         // Paquete 18
         unsigned char msg18[2];
@@ -545,11 +556,11 @@ int main(int argc, char const *argv[])
         // Paquete 21
         // tenemos bet_id1 y bet_id2 (por turnos: bet_id1 del q jugo primero), tenemos winner (por jugador: el jugador 1 es 0, el segundo es 1): actualizar players y mandarlos
         if (turno == 0) {
-            players[winner].pot += bet_id2;
-            players[1 - winner].pot -= bet_id1;
+            players[winner].pot += (BETS[bet_id2] + 10);
+            players[1 - winner].pot -= (BETS[bet_id1] + 10);
         } else {
-            players[winner].pot += bet_id1;
-            players[1 - winner].pot += bet_id2;
+            players[winner].pot += (BETS[bet_id1] + 10);
+            players[1 - winner].pot += (BETS[bet_id2] + 10);
         }
         unsigned char msg21[4];
         msg21[0] = 21;

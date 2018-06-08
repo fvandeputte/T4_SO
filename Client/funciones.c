@@ -8,6 +8,27 @@
 int sock;
 int busy = 0;
 
+unsigned char get_num(char c) {
+    if (c == '1') {
+        return 1;
+    }
+    if (c == '2') {
+        return 2;
+    }
+    if (c == '3') {
+        return 3;
+    }
+    if (c == '4') {
+        return 4;
+    }
+    if (c == '5') {
+        return 5;
+    }
+    return 6;
+}
+
+
+
 void start_connnection(int sock){
     unsigned char message[3];
     message[0] = 1;
@@ -159,21 +180,38 @@ void * handle_message(void * msg){
 
     }
     else if (message[0] == 14){
-        printf("Tienes las siguientes apuestas disponibles: \n");
-        for (int i= 0; i < message[1]; i ++){
-            imprimir_pos(message[2+i]);
+        printf("message 14 es ");
+        for (int i=0; i<message[1]; i++) {
+            printf("%u ", message[i]);
         }
-        int n_rpta;
-        printf("¿Cuanto desea apostar? (inserte el numero) ");
-        char c;
-        c = getchar();
-        c = getchar();
-        c = getchar();
-        printf("char es %c\n", c);
-        unsigned msg_bet[50];
-        msg_bet[0] = 15;
-        msg_bet[1] = 1;
-        msg_bet[2] = n_rpta % 256;
+        printf("\n");
+        sleep(1);
+        int done14 = 0;
+        unsigned char msg_bet[50];
+        while (!done14) {
+            printf("Tienes las siguientes apuestas disponibles: \n");
+            for (int i= 0; i < message[1]; i ++){
+                // printf("message[2+i] es %u\n", message[2 + i]);
+                imprimir_pos(message[2+i]);
+            }
+            
+            printf("¿Cuanto desea apostar? (inserte el numero de la apuesta) ");
+            
+            
+            char c;
+            c = getchar();
+            c = getchar();
+            c = getchar();
+            printf("char es %c\n", c);
+            msg_bet[0] = 15;
+            msg_bet[1] = 1;
+            msg_bet[2] = get_num(c);
+            if (msg_bet[2] != 6) {
+                done14 = 1;
+            }
+        }
+        
+        printf("msg_bet[2] es %u\n", msg_bet[2]);
         send(sock, msg_bet, 3, 0);
     }
     else if (message[0] == 17) {
