@@ -141,10 +141,11 @@ int main(int argc, char const *argv[])
     printf("Acabo de enviar pot inicial de juego \n");
 
 
-    int turno = rand() % 2;
 
     int winner = 99;
+    int turno;
     while (1) {
+        turno = rand() % 2;
         winner = 99;
         if (players[0].pot < 10 || players[1].pot < 10) {
             break;
@@ -339,7 +340,7 @@ int main(int argc, char const *argv[])
         
         
         sleep(1);
-        int BETS[] = {-1, 0, 0, 100, 200, 500}; //-1 es nada, es para que parta en indice 1
+        int BETS[] = {0, 0, 0, 100, 200, 500}; //-1 es nada, es para que parta en indice 1
         int done1 = 0;
         unsigned char bet_id1;
         unsigned char bet_id2;
@@ -380,6 +381,7 @@ int main(int argc, char const *argv[])
                 // printf("bet_id1 es %u\n", bet_id1);
             }
             if (bet_id1 == 1) {
+                // printf("TENEMOS UN PERDEDOR\n");
                 winner = 1 - turno;
                 msg17[0] = 17;
                 msg17[1] = 0;
@@ -563,11 +565,14 @@ int main(int argc, char const *argv[])
                 winner = 1;
             }
             printf("Scores son %f, %f\n", scores[0], scores[1]);
-        } else { // winner se definió antes, en caso fold, respecto a turno, no respecto a cada jugador
-            if (turno == 1) {
-                winner = 1 - winner;
-            }
-        }
+        } 
+        // else { // winner se definió antes, en caso fold, respecto a turno, no respecto a cada jugador
+        //     printf("ACA\n");
+        //     if (turno == 1) {
+        //         printf("ACA1\n");
+        //         winner = 1 - winner;
+        //     }
+        // }
         unsigned char msg20[3];
         msg20[0] = 20;
         msg20[1] = 1;
