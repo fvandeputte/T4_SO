@@ -183,9 +183,9 @@ void * handle_message(void * msg){
                 printf("¿Qué carta quieres cambiar? (un número entre 1 y 5, o f si ninguna más) ");
             }
         }
-        for (int i=0; i<cont; i++) {
-            printf("%d ", changes[i]);
-        }
+        // for (int i=0; i<cont; i++) {
+        //     //printf("%d ", changes[i]);
+        // }
         printf("\n");
         unsigned char* msg13 = calloc(2 + 2 * cont, sizeof(unsigned char));
         msg13[0] = 13;
@@ -193,8 +193,8 @@ void * handle_message(void * msg){
         for (int i=0; i<cont; i++) {
             msg13[2 + 2 * i] = cartas[changes[i] - 1][0];
             msg13[2 + 2 * i + 1] = cartas[changes[i] - 1][1];
-            printf("i es %d, changes[i] es %d\n", i, changes[i]);
-            printf("Poniendo en el mensaje la carta %u, %u\n", cartas[changes[i] - 1][0], cartas[changes[i] - 1][1]);
+            //printf("i es %d, changes[i] es %d\n", i, changes[i]);
+            //printf("Poniendo en el mensaje la carta %u, %u\n", cartas[changes[i] - 1][0], cartas[changes[i] - 1][1]);
         }
         send(sock, msg13 , (2 + 2 * cont) * sizeof(unsigned char), 0);
     }
@@ -220,8 +220,7 @@ void * handle_message(void * msg){
             }
             
             printf("¿Cuanto quieres apostar? (inserta el numero de la apuesta) ");
-            
-            
+
             char c;
             c = getchar();
             while (get_num(c) == 6) {
@@ -229,7 +228,6 @@ void * handle_message(void * msg){
             }
             // c = getchar();
             // c = getchar();
-            printf("char es %c\n", c);
             msg_bet[0] = 15;
             msg_bet[1] = 1;
             msg_bet[2] = get_num(c);

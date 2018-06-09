@@ -207,15 +207,20 @@ int main(int argc, char const *argv[])
         msg12[1] = 0;
         sleep(1);
         send(sockets[0], msg12 , 2 * sizeof(unsigned char), 0);
-        send(sockets[1], msg12 , 2 * sizeof(unsigned char), 0);
+        printf("Envie solicitud de cambio a socket 1 \n");
 
 
         // Paquete 13: este se lee, no se manda
 
         unsigned char message[12];
         valread = read(sockets[0], message, 12);
+        while (message[0] != 13){
+            printf("[Socket 1] Aqui cuando message[0] es %u \n", message[0]);
+            valread = read(sockets[0], message, 12);
+        }
         // printf("Mensaje en 0 del primero: %u \n", message[0]);
         if (message[0] == 13) {
+            printf("[Socket 1] Entre al message 13 \n");
             unsigned char nro_cartas = message[1] / 2;
             // printf("Tengo que cambiar %d cartas\n", nro_cartas);
             // printf("message es ");
@@ -254,12 +259,18 @@ int main(int argc, char const *argv[])
             // printf("Valid sent: \n");
       
         }
-  
+
+        send(sockets[1], msg12 , 2 * sizeof(unsigned char), 0);
         valread = read(sockets[1], message, 20);
         // printf("Mensaje en 0 del segundo, es: %u\n", message[0]);
+        while (message[0] != 13){
+            printf("Socket 2 con Message[0]: %i \n", message[0]);
+            valread = read(sockets[1], message, 20);
+        }
 
 
         if (message[0] == 13) {
+            printf("[Socket 2] Entre al message2 \n");
             unsigned char nro_cartas = message[1] / 2;
             // printf("Tengo que cambiar %d cartas\n", nro_cartas);
             
@@ -565,6 +576,7 @@ int main(int argc, char const *argv[])
         } else {
             msg20[2] = 0;
         }
+        sleep(1);
         send(sockets[0], msg20, 3 * sizeof(unsigned char), 0);
         msg20[2] = 1 - msg20[2];
         send(sockets[1], msg20, 3 * sizeof(unsigned char), 0);

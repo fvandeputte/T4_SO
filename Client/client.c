@@ -18,9 +18,11 @@
 
 int main(int argc, char const *argv[])
 {
+
     setlocale(LC_CTYPE, "");
 
-    sleep(2); // se demora un poco la conexion al server
+
+
     struct sockaddr_in address;
     sock = 0;
     int valread;
