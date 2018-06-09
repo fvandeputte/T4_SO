@@ -142,9 +142,10 @@ int main(int argc, char const *argv[])
 
 
     int turno = rand() % 2;
-    // Este while true porque hay muchas rondas: falta condicion termino
-    while (1) {
 
+    int winner = 99;
+    while (1) {
+        winner = 99;
         if (players[0].pot < 10 || players[1].pot < 10) {
             break;
             // se termina el juego, mandar ultimos paquetes
@@ -213,31 +214,31 @@ int main(int argc, char const *argv[])
 
         unsigned char message[12];
         valread = read(sockets[0], message, 12);
-        printf("Mensaje en 0 del primero: %u \n", message[0]);
+        // printf("Mensaje en 0 del primero: %u \n", message[0]);
         if (message[0] == 13) {
             unsigned char nro_cartas = message[1] / 2;
-            printf("Tengo que cambiar %d cartas\n", nro_cartas);
-            printf("message es ");
-            for (int i=0; i<message[1]; i++) {
-                printf("%u ", message[i]);
-            }
-            printf("\n");
+            // printf("Tengo que cambiar %d cartas\n", nro_cartas);
+            // printf("message es ");
+            // for (int i=0; i<message[1]; i++) {
+            //     printf("%u ", message[i]);
+            // }
+            // printf("\n");
             for (int cambio = 0; cambio<nro_cartas; cambio++) {
                 unsigned char carta = message[2 + 2 * cambio];
                 unsigned char pinta = message[2 + 2 * cambio + 1];
-                printf("carta es %d, pinta es %d\n", carta, pinta);
+                // printf("carta es %d, pinta es %d\n", carta, pinta);
                 int idx_carta = get_idx(carta, pinta, mazo);
                 int p = 0;
                 while (cartas_idxs[p] != idx_carta) {
                     p++;
                 }
-                printf("p es %d\n", p);                
+                // printf("p es %d\n", p);                
                 int carta_idx =  rand() % 52;
                 while (!not_picked(carta_idx, cartas_idxs, 10)) {
                     carta_idx =  rand() % 52;
                 }
                 cartas_idxs[p] = carta_idx;
-                printf("Tengo que cambiar %u, %u; p es %d; carta ahora es %u, %u\n", carta, pinta, p, mazo[cartas_idxs[p]][0], mazo[cartas_idxs[p]][1]);
+                // printf("Tengo que cambiar %u, %u; p es %d; carta ahora es %u, %u\n", carta, pinta, p, mazo[cartas_idxs[p]][0], mazo[cartas_idxs[p]][1]);
             }
 
             // Enviar nuevo paquete 10 con las cartas actualizadas
@@ -250,22 +251,23 @@ int main(int argc, char const *argv[])
                 }
             }
             int valid_sent = send(sockets[0], msg10a, 12 * sizeof(unsigned char), 0);
-            printf("Valid sent: \n");
+            // printf("Valid sent: \n");
       
         }
   
         valread = read(sockets[1], message, 20);
-        printf("Mensaje en 0 del segundo, es: %u\n", message[0]);
+        // printf("Mensaje en 0 del segundo, es: %u\n", message[0]);
+
 
         if (message[0] == 13) {
             unsigned char nro_cartas = message[1] / 2;
-            printf("Tengo que cambiar %d cartas\n", nro_cartas);
+            // printf("Tengo que cambiar %d cartas\n", nro_cartas);
             
-            printf("message es ");
-            for (int i=0; i<message[1]; i++) {
-                printf("%u \n", message[i]);
-            }
-            printf("\n");
+            // printf("message es ");
+            // for (int i=0; i<message[1]; i++) {
+            //     printf("%u \n", message[i]);
+            // }
+            // printf("\n");
 
             for (int cambio = 0; cambio<nro_cartas; cambio++) {
                 unsigned char carta = message[2 + 2 * cambio];
@@ -275,13 +277,13 @@ int main(int argc, char const *argv[])
                 while (cartas_idxs[p] != idx_carta) {
                     p++;
                 }
-                printf("p es %d\n", p);
+                // printf("p es %d\n", p);
                 int carta_idx =  rand() % 52;
                 while (!not_picked(carta_idx, cartas_idxs, 10)) {
                     carta_idx =  rand() % 52;
                 }
                 cartas_idxs[p] = carta_idx;
-                printf("Tengo que cambiar %u, %u; p es %d; carta ahora es %u, %u\n", carta, pinta, p, mazo[cartas_idxs[p]][0], mazo[cartas_idxs[p]][1]);
+                // printf("Tengo que cambiar %u, %u; p es %d; carta ahora es %u, %u\n", carta, pinta, p, mazo[cartas_idxs[p]][0], mazo[cartas_idxs[p]][1]);
             }
 
             // Enviar nuevo paquete 10 con las cartas actualizadas
@@ -328,11 +330,10 @@ int main(int argc, char const *argv[])
         sleep(1);
         int BETS[] = {-1, 0, 0, 100, 200, 500}; //-1 es nada, es para que parta en indice 1
         int done1 = 0;
-        int winner = 99;
         unsigned char bet_id1;
         unsigned char bet_id2;
         while (!done1) {
-            printf("Not done1\n");
+            // printf("Not done1\n");
             int sup;
             if (players[turno].pot >= 200) {
                 sup = 7;
@@ -365,7 +366,7 @@ int main(int argc, char const *argv[])
             unsigned char * msg17 = calloc(sup, sizeof(unsigned char));
             if (message[0] == 15) {
                 bet_id1 = message[2];
-                printf("bet_id1 es %u\n", bet_id1);
+                // printf("bet_id1 es %u\n", bet_id1);
             }
             if (bet_id1 == 1) {
                 winner = 1 - turno;
@@ -417,7 +418,7 @@ int main(int argc, char const *argv[])
         int SEC_BETS[5];
         SEC_BETS[0] = 1;
         while (!done2 && winner == 99) {
-            printf("Not done2 and no winner yet\n");
+            // printf("Not done2 and no winner yet\n");
 
             int count2 = 1;
             for (int i=2; i < 6; i++) {
@@ -444,7 +445,7 @@ int main(int argc, char const *argv[])
             // printf("ACA2\n");
             if (message[0] == 15) {
                 bet_id2 = message[2];
-                printf("bet_id2 es %u\n", bet_id2);
+                // printf("bet_id2 es %u\n", bet_id2);
             }
             if (bet_id2 == 1) {
                 winner = turno;
@@ -492,11 +493,27 @@ int main(int argc, char const *argv[])
         if (bet_id2 > bet_id1 && bet_id1 != 1) { // nueva apuesta jugador del turno, fold o igualar
             unsigned char * msg14c = calloc(4, sizeof(unsigned char));
             msg14c[0] = 14;
-            msg14c[1] = 4;
+            msg14c[1] = 2;
             msg14c[2] = 1;
-            msg14c[3] = 6;
-            // FALTA
+            msg14c[3] = bet_id2;
+            send(sockets[turno], msg14c, 4 * sizeof(unsigned char), 0);
+            sleep(1);
+            valread = read(sockets[turno], message, 20);
+            if (message[0] == 15) {
+                bet_id1 = message[2];
+                // printf("bet_id1 es %u\n", bet_id1);
+            }
+            if (bet_id1 == 1) {
+                winner = 1 - turno;
+            }
 
+            if (bet_id1 == 1 || bet_id1 == bet_id2) {
+                unsigned char msg17_2[2] = {17, 0};
+                send(sockets[turno], msg17_2, 2 * sizeof(unsigned char), 0);
+            } else {
+                unsigned char msg16_2[2] = {16, 0};
+                send(sockets[turno], msg16_2, 2 * sizeof(unsigned char), 0);
+            }
 
         }
 
@@ -560,7 +577,7 @@ int main(int argc, char const *argv[])
             players[1 - winner].pot -= (BETS[bet_id1] + 10);
         } else {
             players[winner].pot += (BETS[bet_id1] + 10);
-            players[1 - winner].pot += (BETS[bet_id2] + 10);
+            players[1 - winner].pot -= (BETS[bet_id2] + 10);
         }
         unsigned char msg21[4];
         msg21[0] = 21;
@@ -585,6 +602,57 @@ int main(int argc, char const *argv[])
 
 
     // Paquete 23
+    // printf("ACA1\n");
+    FILE *fptr_w;
+    FILE *fptr_l;
+    int filelen_w;
+    int filelen_l;
+    // printf("0\n");
+    fptr_w = fopen("winner.ico", "rb");
+    // printf("1\n");
+    fseek(fptr_w, 0, SEEK_END);
+    filelen_w = ftell(fptr_w);
+    fseek(fptr_w, 0, SEEK_SET);
+    // printf("filelen_w es %d\n", filelen_w);
+    char buffer_w[filelen_w];
+    fread(buffer_w, filelen_w, 1, fptr_w);
+    fclose(fptr_w);
+
+    // printf("ACA2\n");
+    fptr_l = fopen("loser.ico", "rb");
+    // filelen_l = ftell(fptr_l);
+    fseek(fptr_l, 0, SEEK_END);
+    filelen_l = ftell(fptr_l);
+    fseek(fptr_l, 0, SEEK_SET);
+    // printf("filelen_l es %d\n", filelen_l);
+    char buffer_l[filelen_l];
+    fread(buffer_l, filelen_w, 1, fptr_l);
+    fclose(fptr_l);
+
+
+
+    // printf("ACA3\n");
+    unsigned char * msg23w = calloc(2 + filelen_w, sizeof(unsigned char));
+    msg23w[0] = 23;
+    msg23w[1] = filelen_w;
+    for (int i=0; i<filelen_w; i++) {
+        msg23w[2 + i] = buffer_w[i];
+    }
+
+    send(sockets[winner], msg23w, (2 + filelen_w) * sizeof(unsigned char), 0);
+
+    // printf("ACA4\n");
+
+    sleep(2);
+
+    unsigned char * msg23l = calloc(2 + filelen_l, sizeof(unsigned char));
+    msg23l[0] = 23;
+    msg23l[1] = filelen_l;
+    for (int i=0; i<filelen_l; i++) {
+        msg23l[2 + i] = buffer_l[i];
+    }
+
+    send(sockets[1 - winner], msg23l, (2 + filelen_l) * sizeof(unsigned char), 0);
 
 
     return 0;

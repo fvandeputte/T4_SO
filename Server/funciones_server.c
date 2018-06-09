@@ -181,7 +181,7 @@ int has_two_pairs(unsigned char cartas[5][2]) {
     for (int i=0; i<5; i++) {
         unsigned char carta_aux = cartas[i][0];
         for (int j=i; j<5; j++) {
-            if (carta_aux == cartas[j][0]) {
+            if (i != j && carta_aux == cartas[j][0]) {
                 cont_aux++;
                 if (carta_aux > max) {
                     max = carta_aux;

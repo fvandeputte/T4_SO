@@ -3,10 +3,31 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <wchar.h>
+#include <locale.h>
 #define PORT 8080
+
 
 int sock;
 int busy = 0;
+
+
+wchar_t corazon = 0x2665;
+wchar_t diamante = 0x2666;
+wchar_t trebol = 0x2663;
+wchar_t pic = 0x2660;
+
+void print_carta(unsigned char carta, unsigned char pinta) {
+    if (pinta == 1) {
+        printf("%u%lc\n", carta, corazon);
+    } else if (pinta == 2) {
+        printf("%u%lc\n", carta, diamante);
+    } else if (pinta == 3) {
+        printf("%u%lc\n", carta, trebol);
+    } else {
+        printf("%u%lc\n", carta, pic);
+    }
+}
 
 unsigned char get_num(char c) {
     if (c == '1') {
@@ -64,6 +85,7 @@ int imprimir_pos(unsigned char id){
 }
 
 unsigned char cartas[5][2];
+char nick[20];
 
 void * handle_message(void * msg){
     unsigned char * message = ((unsigned char *) msg);
@@ -77,6 +99,7 @@ void * handle_message(void * msg){
         unsigned char str1[20];
         printf("Enter nickname for playing: ");
         scanf("%s", str1);
+        strcpy(nick, str1);
         unsigned char message_with_nickname[50];
         message_with_nickname[0] = 4;
         message_with_nickname[1] = 20;
@@ -131,7 +154,8 @@ void * handle_message(void * msg){
         for (int i=0; i<5; i++) {
             unsigned char carta = message[2 + 2*i];
             unsigned char pinta = message[2 + 2*i + 1];
-            printf("(%d) [%u, %u]\n", i+1, carta, pinta);
+            print_carta(carta, pinta);
+            // printf("(%d) [%u, %u]\n", i+1, carta, pinta);
             cartas[i][0] = carta;
             cartas[i][1] = pinta;
         }
@@ -143,6 +167,11 @@ void * handle_message(void * msg){
         int changes[5];
         int cont = 0;
         printf("¿Qué carta quieres cambiar? (un número entre 1 y 5, o f si ninguna más) ");
+        // char t;
+        // t = getchar();
+        // while (get_num(t) == 6) {
+        //     t = getchar();
+        // }
         while(scanf("%d",&n) == 1) {
             if (n != last_n && n >= 1 && n <= 5) {
                 changes[cont++] = n;
@@ -180,11 +209,6 @@ void * handle_message(void * msg){
 
     }
     else if (message[0] == 14){
-        printf("message 14 es ");
-        for (int i=0; i<message[1]; i++) {
-            printf("%u ", message[i]);
-        }
-        printf("\n");
         sleep(1);
         int done14 = 0;
         unsigned char msg_bet[50];
@@ -195,13 +219,16 @@ void * handle_message(void * msg){
                 imprimir_pos(message[2+i]);
             }
             
-            printf("¿Cuanto desea apostar? (inserte el numero de la apuesta) ");
+            printf("¿Cuanto quieres apostar? (inserta el numero de la apuesta) ");
             
             
             char c;
             c = getchar();
-            c = getchar();
-            c = getchar();
+            while (get_num(c) == 6) {
+                c = getchar();
+            }
+            // c = getchar();
+            // c = getchar();
             printf("char es %c\n", c);
             msg_bet[0] = 15;
             msg_bet[1] = 1;
@@ -211,7 +238,7 @@ void * handle_message(void * msg){
             }
         }
         
-        printf("msg_bet[2] es %u\n", msg_bet[2]);
+        // printf("msg_bet[2] es %u\n", msg_bet[2]);
         send(sock, msg_bet, 3, 0);
     }
     else if (message[0] == 17) {
@@ -230,7 +257,8 @@ void * handle_message(void * msg){
         for (int i=0; i<5; i++) {
             carta_rival = message[2 + 2*i];
             pinta_rival = message[2 + 2*i + 1];
-            printf("(%d) [%u, %u]\n", i+1, carta_rival, pinta_rival);
+            print_carta(carta_rival, pinta_rival);
+            // printf("(%d) [%u, %u]\n", i+1, carta_rival, pinta_rival);
 
         }
     }
@@ -239,8 +267,25 @@ void * handle_message(void * msg){
             printf("Ganaste la ronda\n");
         }
         else {
-            printf("Perdiste esta roonda\n");
+            printf("Perdiste esta ronda\n");
         }
+    } 
+    else if (message[0] == 23) {
+        FILE *fptr;
+        char * img_name = calloc(40, sizeof(unsigned char));
+        img_name = strcat(nick, "_img.ico");
+        fptr= fopen(img_name, "wb");
+        unsigned char * img = calloc(message[1], sizeof(unsigned char));
+        for (int i=0; i<message[1]; i++) {
+            img[i] = message[2 + i];
+        }
+        fwrite(img, 1, message[1], fptr);
+        fclose(fptr);
+    }
+
+    else {
+        unsigned char msg_not_implemented[2] = {24, 0};
+        send(sock, msg_not_implemented, 2, 0);
     }
 }
 
