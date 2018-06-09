@@ -19,13 +19,69 @@ wchar_t pic = 0x2660;
 
 void print_carta(unsigned char carta, unsigned char pinta) {
     if (pinta == 1) {
-        printf("%u%lc\n", carta, corazon);
+        if (carta == 11) {
+            printf("J%lc\n", corazon);
+        } 
+        if (carta == 12) {
+            printf("Q%lc\n", corazon);
+        }
+        if (carta == 13) {
+            printf("K%lc\n", corazon);
+        }
+        if (carta == 1) {
+            printf("A%lc\n", corazon);
+        }
+        if (carta > 1 && carta < 11) {
+            printf("%u%lc\n", carta, corazon);
+        } 
     } else if (pinta == 2) {
-        printf("%u%lc\n", carta, diamante);
+        if (carta == 11) {
+            printf("J%lc\n", diamante);
+        } 
+        if (carta == 12) {
+            printf("Q%lc\n", diamante);
+        }
+        if (carta == 13) {
+            printf("K%lc\n", diamante);
+        }
+        if (carta == 1) {
+            printf("A%lc\n", diamante);
+        }
+        if (carta > 1 && carta < 11) {
+            printf("%u%lc\n", carta, diamante);
+        }
     } else if (pinta == 3) {
-        printf("%u%lc\n", carta, trebol);
+        if (carta == 11) {
+            printf("J%lc\n", trebol);
+        } 
+        if (carta == 12) {
+            printf("Q%lc\n", trebol);
+        }
+        if (carta == 13) {
+            printf("K%lc\n", trebol);
+        }
+        if (carta == 1) {
+            printf("A%lc\n", trebol);
+        }
+        if (carta > 1 && carta < 11) {
+            printf("%u%lc\n", carta, trebol);
+        }
     } else {
-        printf("%u%lc\n", carta, pic);
+        if (carta == 11) {
+            printf("J%lc\n", pic);
+        } 
+        if (carta == 12) {
+            printf("Q%lc\n", pic);
+        }
+        if (carta == 13) {
+            printf("K%lc\n", pic);
+        }
+        if (carta == 1) {
+            printf("A%lc\n", pic);
+        }
+        if (carta > 1 && carta < 11) {
+            printf("%u%lc\n", carta, pic);
+        }
     }
 }
 
